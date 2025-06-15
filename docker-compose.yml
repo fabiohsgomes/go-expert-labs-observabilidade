@@ -1,0 +1,61 @@
+services:
+  service-a:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: servicea
+    container_name: service-a
+    restart: always
+    ports:
+      - 3000:3000
+    environment:
+      - AMBIENTE_PUBLICACAO=DEMO
+      - OTEL_COLLECTOR_ENDPOINT=otel-collector:4317
+    depends_on:
+      - service-b
+      - otel-collector
+    networks:
+      - app-network
+
+  service-b:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: serviceb
+    container_name: service-b
+    restart: always
+    ports:
+      - 3001:3001
+    environment:
+      - AMBIENTE_PUBLICACAO=LOCAL
+      - WEATHER_API_KEY=da26cd9b6c624664977234238250506
+      - OTEL_COLLECTOR_ENDPOINT=otel-collector:4317
+    depends_on:
+      - otel-collector
+    networks:
+      - app-network
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest # Imagem mais completa do Collector
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./.docker/otel-collector-config.yaml:/etc/otel-collector-config.yaml # Monta o arquivo de configuração
+    ports:
+      - "4317:4317" # Porta gRPC para traces/métricas
+      - "4318:4318" # Porta HTTP para traces/métricas
+      - "13133:13133" # Health check
+    depends_on:
+      - zipkin
+    networks:
+      - app-network
+
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,0 +1,29 @@
+POST http://localhost:3000/temperaturas HTTP/1.1
+Host: localhost:3000
+Accept: application/json
+Content-Type: application/json
+
+{
+    "cep":"05791120"
+}
+
+###
+POST http://localhost:3000/temperaturas HTTP/1.1
+Host: localhost:3000
+Accept: application/json
+Content-Type: application/json
+
+{
+    "cep":"00000000"
+}
+
+###
+POST http://localhost:3000/temperaturas HTTP/1.1
+Host: localhost:3000
+Accept: application/json
+Content-Type: application/json
+
+{
+    "cep":"000000a0"
+}
+
